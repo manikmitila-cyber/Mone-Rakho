@@ -13,23 +13,35 @@ jobs:
 
       - name: Extract Flutter project
         run: |
+          rm -rf /tmp/mone_rakho
           unzip -o mone_rakho_mvp.zip -d /tmp/mone_rakho
-          cp -r /tmp/mone_rakho/mone_rakho/* .
+          cp -r /tmp/mone_rakho/mone_rakho/. .
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
 
+      - name: Create Android files
+        run: flutter create --platforms=android --project-name mone_rakho --org com.example .
+
+      - name: Patch Android settings
+        run: python3 tool/patch_android.py
+
+      - name: Use fixed signing key
+        run: |
+          mkdir -p ~/.android
+          cp tool/debug.keystore ~/.android/debug.keystore
+
       - name: Install dependencies
         run: flutter pub get
-      - name: Create Android files
-        run: flutter create --platforms=android .
+
       - name: Build APK
         run: flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: mone-rakho-apk
+          name: mone_rakho-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
