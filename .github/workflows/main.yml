@@ -28,6 +28,11 @@ jobs:
       - name: Patch Android settings
         run: python3 tool/patch_android.py
 
+      - name: Fix JVM target mismatch
+        run: |
+          echo "" >> android/gradle.properties
+          echo "kotlin.jvm.target.validation.mode=warning" >> android/gradle.properties
+
       - name: Use fixed signing key
         run: |
           mkdir -p ~/.android
